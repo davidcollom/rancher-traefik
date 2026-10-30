@@ -94,12 +94,13 @@ make run
 
 ## Debugging
 
-Set `DEBUG` in the environment to print the resolved Traefik command before it is executed:
+Set `DEBUG` in the container's environment to print the resolved Traefik command before it is
+executed:
 
 ```bash
-DEBUG=1 docker run --rm rancher-traefik:latest
+docker run --rm -e DEBUG=1 rancher-traefik:latest
 ```
 
 ## License
 
-See the repository for licensing details.
+No licence file is included in this repository.
