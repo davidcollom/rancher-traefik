@@ -13,7 +13,7 @@ environment variables (or Docker/Kubernetes secrets) into Traefik command line a
 | `Dockerfile` | Multi-stage build: copies the `traefik` binary and config into a minimal Alpine image. |
 | `traefik.toml` | Traefik static configuration, including the Rancher provider. |
 | `run.sh` | Entrypoint that loads secrets and converts `TRAEFIK_*` env vars into CLI flags. |
-| `Makefile` | Build helpers. |
+| `Makefile` | Build, push and run helpers. |
 
 ## Building
 
@@ -26,6 +26,8 @@ Or directly:
 ```bash
 docker build -t rancher-traefik:latest .
 ```
+
+The image is published as `davidcollom/rancher-traefik`.
 
 ## Configuration
 
@@ -43,7 +45,7 @@ prefix is stripped, the name is lowercased and underscores become dots:
 ### Secrets
 
 Files placed in `/run/secrets/` are loaded into the environment before Traefik starts. The file name
-becomes the variable name, uppercased with `/` replaced by `_`:
+becomes the variable name, uppercased:
 
 ```
 /run/secrets/TRAEFIK_API_DASHBOARD=true
@@ -69,8 +71,11 @@ intervalPoll = true
 endpoint = "http://rancher/v1"
 ```
 
-Set the `traefik.domain` label on a Rancher service to override the default domain, and note that
-services are not exposed by default — each one must be opted in.
+Set the `traefik.domain` label on a Rancher service to override the default domain. Note that
+services are not exposed by default — each one must be opted in, and unhealthy or inactive services
+are filtered out.
+
+The API backend requires `accessKey` and `secretKey` to be filled in.
 
 ## Running
 
@@ -79,6 +84,12 @@ docker run -d \
   -p 80:80 -p 443:443 \
   -v /run/secrets:/run/secrets:ro \
   rancher-traefik:latest
+```
+
+The `Makefile` also provides a `run` target that mounts `./test_secrets/` and loads `.env`:
+
+```bash
+make run
 ```
 
 ## Debugging
